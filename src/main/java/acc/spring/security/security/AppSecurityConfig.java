@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+import java.util.concurrent.TimeUnit;
+
 import static acc.spring.security.security.UserPermission.*;
 import static acc.spring.security.security.UserRole.*;
 
@@ -47,6 +49,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 			.loginPage("/login").permitAll()
 			//Default URL once it is loggedIn
 			.defaultSuccessUrl("/dogs",true)
+			.and()
+			//Default of two weeks, but can be customized
+			.rememberMe().tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(7))
+				.key("CheemsSecret")	//Key for the md5 hash
 		;
 	}
 	

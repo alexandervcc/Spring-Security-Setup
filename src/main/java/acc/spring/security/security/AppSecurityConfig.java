@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import static acc.spring.security.security.UserPermission.*;
 import static acc.spring.security.security.UserRole.*;
@@ -33,20 +34,11 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.csrf().disable()
+			.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+			.and()
 			.authorizeRequests()
-			//url with no authentication
 			.antMatchers("/","/index","/css/*","/js/*").permitAll()
-			//API protected by user role
-			.antMatchers("/api/dog/**").hasRole(DOG.name())
-//			.antMatchers(HttpMethod.DELETE,"/api/food/**")
-//				.hasAuthority(FOOD_WRITE.getPermission())
-//			.antMatchers(HttpMethod.POST,"/api/food/**")
-//				.hasAuthority(FOOD_WRITE.getPermission())
-//			.antMatchers(HttpMethod.PUT,"/api/food/**")
-//				.hasAuthority(FOOD_WRITE.getPermission())
-//			.antMatchers(HttpMethod.GET,"/api/food/**")
-//				.hasAnyRole(DOG.name(),DOGGERINO.name(),SUPER_DOG.name())
+			.antMatchers("/api/**").hasRole(DOG.name())
 			.anyRequest()
 			.authenticated()
 			.and()

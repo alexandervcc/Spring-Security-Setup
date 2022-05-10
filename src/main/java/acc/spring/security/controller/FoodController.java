@@ -1,7 +1,9 @@
 package acc.spring.security.controller;
 
 import acc.spring.security.model.Food;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import static acc.spring.security.security.UserRole.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,16 +19,14 @@ public class FoodController {
         foodList.add(new Food(3,"Royal Cani",46.00));
     }
 
-
-
-
-
     @GetMapping({"/",""})
+    @PreAuthorize("hasAnyRole('ROLE_DOG','ROLE_DOGGERINO','ROLE_SUPER_DOG')")
     public List<Food> getFoodList(){
         return this.foodList;
     }
 
     @PostMapping("/new")
+    @PreAuthorize("hasAnyAuthority('food:write')")
     public void addNewFood(@RequestBody Food newFood){
         System.out.println("Food: "+newFood.toString());
         try {
@@ -38,11 +38,13 @@ public class FoodController {
     }
 
     @DeleteMapping("/{foodId}")
+    @PreAuthorize("hasAnyAuthority('food:write')")
     public Integer deleteFood(@PathVariable("foodId") Integer idFood){
         return idFood;
     }
 
     @PutMapping("/{foodId}")
+    @PreAuthorize("hasAnyAuthority('food:write')")
     public String updateFood(
             @PathVariable("foodId") Integer foodId ,
             @RequestBody Food updatedFood

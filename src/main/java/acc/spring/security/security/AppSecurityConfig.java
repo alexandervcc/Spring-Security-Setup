@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -18,6 +19,7 @@ import static acc.spring.security.security.UserRole.*;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	private final PasswordEncoder passwordEncoder;
@@ -37,14 +39,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 			.antMatchers("/","/index","/css/*","/js/*").permitAll()
 			//API protected by user role
 			.antMatchers("/api/dog/**").hasRole(DOG.name())
-			.antMatchers(HttpMethod.DELETE,"/api/food/**")
-				.hasAuthority(FOOD_WRITE.getPermission())
-			.antMatchers(HttpMethod.POST,"/api/food/**")
-				.hasAuthority(FOOD_WRITE.getPermission())
-			.antMatchers(HttpMethod.PUT,"/api/food/**")
-				.hasAuthority(FOOD_WRITE.getPermission())
-			.antMatchers(HttpMethod.GET,"/api/food/**")
-				.hasAnyRole(DOG.name(),DOGGERINO.name(),SUPER_DOG.name())
+//			.antMatchers(HttpMethod.DELETE,"/api/food/**")
+//				.hasAuthority(FOOD_WRITE.getPermission())
+//			.antMatchers(HttpMethod.POST,"/api/food/**")
+//				.hasAuthority(FOOD_WRITE.getPermission())
+//			.antMatchers(HttpMethod.PUT,"/api/food/**")
+//				.hasAuthority(FOOD_WRITE.getPermission())
+//			.antMatchers(HttpMethod.GET,"/api/food/**")
+//				.hasAnyRole(DOG.name(),DOGGERINO.name(),SUPER_DOG.name())
 			.anyRequest()
 			.authenticated()
 			.and()

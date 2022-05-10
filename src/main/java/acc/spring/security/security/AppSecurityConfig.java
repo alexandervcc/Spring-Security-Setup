@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +54,15 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 			//Default of two weeks, but can be customized
 			.rememberMe().tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(7))
 				.key("CheemsSecret")	//Key for the md5 hash
+			.and()
+			//Custom Logout
+			.logout()
+				.logoutUrl("/logout")
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout","GET"))
+				.clearAuthentication(true)
+				.invalidateHttpSession(true)
+				.deleteCookies("JSESSIONID","remember-me")
+				.logoutSuccessUrl("/login")
 		;
 	}
 	

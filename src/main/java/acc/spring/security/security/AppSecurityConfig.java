@@ -46,14 +46,19 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 			.and()
 			//Form Based Auth
 			.formLogin()
-			//Custom Login Page
-			.loginPage("/login").permitAll()
-			//Default URL once it is loggedIn
-			.defaultSuccessUrl("/dogs",true)
+				//Custom Login Page
+				.loginPage("/login")
+				.permitAll()
+				.defaultSuccessUrl("/dogs",true)
+				//Parameters keys for the http request
+				.passwordParameter("password")
+				.usernameParameter("username")
 			.and()
 			//Default of two weeks, but can be customized
-			.rememberMe().tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(7))
+			.rememberMe()
+				.tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(7))
 				.key("CheemsSecret")	//Key for the md5 hash
+				.rememberMeParameter("remember-me")
 			.and()
 			//Custom Logout
 			.logout()

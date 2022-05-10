@@ -36,13 +36,18 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 		http.
 			csrf().disable()
 			.authorizeRequests()
-			.antMatchers("/","/index","/css/*","/js/*").permitAll()
+			.antMatchers("/","/index","/css/**","/js/**").permitAll()
 			.antMatchers("/api/dog/**").hasRole(DOG.name())
 			.anyRequest()
 			.authenticated()
 			.and()
-			.formLogin();			//Form Based Auth
-			//.httpBasic();// 		Basic Authentication
+			//Form Based Auth
+			.formLogin()
+			//Custom Login Page
+			.loginPage("/login").permitAll()
+			//Default URL once it is loggedIn
+			.defaultSuccessUrl("/dogs",true)
+		;
 	}
 	
 	//How to retrieve users from the db

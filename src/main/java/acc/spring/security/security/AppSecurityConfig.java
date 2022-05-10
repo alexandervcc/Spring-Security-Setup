@@ -1,9 +1,12 @@
 package acc.spring.security.security;
 
+import acc.spring.security.auth.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,7 +21,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
-import static acc.spring.security.security.UserPermission.*;
 import static acc.spring.security.security.UserRole.*;
 
 @Configuration
@@ -27,11 +29,15 @@ import static acc.spring.security.security.UserRole.*;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	private final PasswordEncoder passwordEncoder;
+	private final AppUserService appUserService;
+
+	public AppSecurityConfig(PasswordEncoder passwordEncoder, AppUserService appUserService) {
+		this.passwordEncoder = passwordEncoder;
+		this.appUserService = appUserService;
+	}
 
 	@Autowired
-	public AppSecurityConfig(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
+
 
 	//BASIC AUTHENTICATION
 	@Override
@@ -70,34 +76,18 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 				.logoutSuccessUrl("/login")
 		;
 	}
-	
-	//How to retrieve users from the db
+
 	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.authenticationProvider(daoAuthenticationProvider());
+	}
+
 	@Bean
-	protected UserDetailsService userDetailsService() {
-		UserDetails mijoUser =  User.builder()
-				.username("mijo")
-				//.password("mijo")    // -> password without encoding
-				.password(passwordEncoder.encode("mijo"))//Password now Encoded
-				//.roles(DOG.name())
-				.authorities(DOG.getGrantedAuthorities())
-				.build();
-
-		UserDetails manaUser =  User.builder()
-				.username("mana")
-				.password(passwordEncoder.encode("mana"))//Password now Encoded
-				//.roles(SUPER_DOG.name())
-				.authorities(SUPER_DOG.getGrantedAuthorities())
-				.build();
-
-		UserDetails kukiUser =  User.builder()
-				.username("kuki")
-				.password(passwordEncoder.encode("kuki"))//Password now Encoded
-				//.roles(DOGGERINO.name())
-				.authorities(DOGGERINO.getGrantedAuthorities())
-				.build();
-		
-		return new InMemoryUserDetailsManager(mijoUser,manaUser,kukiUser);
+	public DaoAuthenticationProvider daoAuthenticationProvider(){
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(passwordEncoder);
+		provider.setUserDetailsService(appUserService);
+		return provider;
 	}
 	
 	

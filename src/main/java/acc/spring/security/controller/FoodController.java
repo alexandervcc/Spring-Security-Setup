@@ -20,7 +20,7 @@ public class FoodController {
     }
 
     @GetMapping({"/",""})
-    @PreAuthorize("hasAnyRole('ROLE_DOG','ROLE_DOGGERINO','ROLE_SUPER_DOG')")
+    @PreAuthorize("hasAnyRole('ROLE_DOGGERINO','ROLE_SUPER_DOG')")
     public List<Food> getFoodList(){
         return this.foodList;
     }

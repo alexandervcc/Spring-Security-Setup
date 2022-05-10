@@ -33,16 +33,16 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 	//BASIC AUTHENTICATION
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-			.and()
+		http.
+			csrf().disable()
 			.authorizeRequests()
 			.antMatchers("/","/index","/css/*","/js/*").permitAll()
-			.antMatchers("/api/**").hasRole(DOG.name())
+			.antMatchers("/api/dog/**").hasRole(DOG.name())
 			.anyRequest()
 			.authenticated()
 			.and()
-			.httpBasic();
+			.formLogin();			//Form Based Auth
+			//.httpBasic();// 		Basic Authentication
 	}
 	
 	//How to retrieve users from the db

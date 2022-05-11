@@ -24,8 +24,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TokenVerifierFilter extends OncePerRequestFilter {
-    @Value("${secret-jwt-key}")
-    private String secretKey;
+    private final JWTConfig jwtConfig;
+
+    public TokenVerifierFilter(JWTConfig jwtConfig) {
+        this.jwtConfig = jwtConfig;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -33,18 +36,18 @@ public class TokenVerifierFilter extends OncePerRequestFilter {
         HttpServletResponse response,
         FilterChain filterChain
     ) throws ServletException, IOException {
-        String authHeader = request.getHeader("authorization");
+        String authHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
         //Request rejection
-        if(Strings.isNullOrEmpty(authHeader)||!authHeader.startsWith("Bearer ")){
+        if(Strings.isNullOrEmpty(authHeader)||!authHeader.startsWith(jwtConfig.getTokenPrefix())){
             filterChain.doFilter(request,response);
             return;
         }
 
         try {
-            String token = authHeader.replace("Bearer ","");
+            String token = authHeader.replace(jwtConfig.getTokenPrefix(),"");
 
             Jws< Claims> claimsJws = Jwts.parser()
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .setSigningKey(jwtConfig.getSecretKey())
                 .parseClaimsJws(token);
 
             Claims body = claimsJws.getBody();

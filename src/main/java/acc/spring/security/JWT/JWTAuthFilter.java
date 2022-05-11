@@ -22,12 +22,17 @@ import java.util.Date;
 public class JWTAuthFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    @Value("${secret-jwt-key}")
-    String secretKey;
+    private final JWTConfig jwtConfig;
 
-    public JWTAuthFilter(AuthenticationManager authenticationManager) {
+    public JWTAuthFilter(
+        AuthenticationManager authenticationManager,
+        JWTConfig jwtConfig
+    ) {
         this.authenticationManager = authenticationManager;
+        this.jwtConfig = jwtConfig;
     }
+
+
 
     //Filter added into the filter chain, in order to provide a custom authentication
     @Override
@@ -73,9 +78,12 @@ public class JWTAuthFilter extends UsernamePasswordAuthenticationFilter {
             .claim("authorities",authResult.getAuthorities())
             .setIssuedAt(new Date())
             .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(2)))
-            .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+            .signWith(jwtConfig.getSecretKey())
             .compact();
 
-        response.setHeader("Authorization","Bearer "+token);
+        response.setHeader(
+            jwtConfig.getAuthorizationHeader(),
+            jwtConfig.getTokenPrefix()+token
+        );
     }
 }

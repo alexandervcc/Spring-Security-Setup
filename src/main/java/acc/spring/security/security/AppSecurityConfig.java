@@ -1,6 +1,7 @@
 package acc.spring.security.security;
 
 import acc.spring.security.JWT.JWTAuthFilter;
+import acc.spring.security.JWT.JWTConfig;
 import acc.spring.security.JWT.TokenVerifierFilter;
 import acc.spring.security.auth.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,18 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	private final PasswordEncoder passwordEncoder;
 	private final AppUserService appUserService;
-
-	public AppSecurityConfig(PasswordEncoder passwordEncoder, AppUserService appUserService) {
-		this.passwordEncoder = passwordEncoder;
-		this.appUserService = appUserService;
-	}
+	private final JWTConfig jwtConfig;
 
 	@Autowired
+	public AppSecurityConfig(
+		PasswordEncoder passwordEncoder,
+		AppUserService appUserService,
+		JWTConfig jwtConfig
+	) {
+		this.passwordEncoder = passwordEncoder;
+		this.appUserService = appUserService;
+		this.jwtConfig = jwtConfig;
+	}
 
 
 	//BASIC AUTHENTICATION
@@ -43,9 +49,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter{
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			//Add JWT Auth into the filter chain
-			.addFilter(new JWTAuthFilter(authenticationManager()))
+			.addFilter(new JWTAuthFilter(authenticationManager(),jwtConfig))
 			//Add the JWT verifier after the JWT AuthFilter
-			.addFilterAfter(new TokenVerifierFilter(),JWTAuthFilter.class)
+			.addFilterAfter(new TokenVerifierFilter(jwtConfig),JWTAuthFilter.class)
 			.authorizeRequests()
 			.antMatchers("/","/index","/css/**","/js/**").permitAll()
 			.antMatchers("/api/dog/**").hasRole(DOG.name())
